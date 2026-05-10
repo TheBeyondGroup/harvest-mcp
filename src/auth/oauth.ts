@@ -35,7 +35,7 @@ export class HarvestOAuth {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
-        'User-Agent': 'HarvestMCP (github.com/your-repo/harvest-mcp)',
+        'User-Agent': 'HarvestMCP (github.com/TheBeyondGroup/harvest-mcp)',
       },
       body: new URLSearchParams({
         code,
@@ -62,7 +62,7 @@ export class HarvestOAuth {
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
         'Accept': 'application/json',
-        'User-Agent': 'HarvestMCP (github.com/your-repo/harvest-mcp)',
+        'User-Agent': 'HarvestMCP (github.com/TheBeyondGroup/harvest-mcp)',
       },
       body: new URLSearchParams({
         refresh_token: refreshToken,
@@ -87,7 +87,7 @@ export class HarvestOAuth {
     const response = await fetch(`${this.config.authBaseUrl}/api/v2/accounts`, {
       headers: {
         'Authorization': `Bearer ${accessToken}`,
-        'User-Agent': 'HarvestMCP (github.com/your-repo/harvest-mcp)',
+        'User-Agent': 'HarvestMCP (github.com/TheBeyondGroup/harvest-mcp)',
       },
     });
 
