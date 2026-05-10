@@ -708,6 +708,24 @@ function getBaseUrl(request: Request): string {
 }
 
 /**
+ * Verify a PKCE code_verifier against the stored code_challenge.
+ * Only S256 is supported (matches what we advertise via oauth-authorization-server metadata).
+ */
+async function verifyPKCE(
+  codeVerifier: string,
+  codeChallenge: string,
+  method: string | undefined
+): Promise<boolean> {
+  if (method !== 'S256') {
+    return false;
+  }
+  const hash = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(codeVerifier));
+  const base64 = btoa(String.fromCharCode(...new Uint8Array(hash)));
+  const base64url = base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  return base64url === codeChallenge;
+}
+
+/**
  * OAuth Protected Resource Metadata (RFC 9728)
  * Claude Desktop fetches this to discover the authorization server
  */
@@ -856,7 +874,23 @@ app.post('/token', async (c) => {
       return c.json({ error: 'invalid_grant', error_description: 'Invalid or expired code' }, 400);
     }
 
-    // TODO: Verify code_verifier against stored code_challenge if PKCE was used
+    const pendingOAuth = session.pendingOAuthState
+      ? JSON.parse(session.pendingOAuthState)
+      : null;
+
+    if (pendingOAuth?.codeChallenge) {
+      if (!code_verifier) {
+        return c.json({ error: 'invalid_request', error_description: 'code_verifier required (PKCE)' }, 400);
+      }
+      const ok = await verifyPKCE(code_verifier, pendingOAuth.codeChallenge, pendingOAuth.codeChallengeMethod);
+      if (!ok) {
+        return c.json({ error: 'invalid_grant', error_description: 'PKCE verification failed' }, 400);
+      }
+    }
+
+    // Clear the pending OAuth state so the auth code can't be reused with PKCE bypassed
+    session.pendingOAuthState = undefined;
+    await sessionStore.set(session.id, session);
 
     // Generate an access token (the session ID serves as our token)
     const accessToken = session.id;
@@ -1154,8 +1188,12 @@ app.get('/callback', async (c) => {
       ? JSON.parse(session.pendingOAuthState)
       : null;
 
-    // Clear the pending state
-    session.pendingOAuthState = undefined;
+    // For the /authorize → /token flow, keep pendingOAuthState alive so /token can
+    // verify PKCE against the stored code_challenge. /token clears it on success.
+    // For the legacy in-chat flow (no client redirect), clear it now.
+    if (!pendingOAuth?.clientRedirectUri) {
+      session.pendingOAuthState = undefined;
+    }
     await sessionStore.set(session.id, session);
 
     console.log(`OAuth completed for session ${session.id}, user: ${session.userEmail}`);
