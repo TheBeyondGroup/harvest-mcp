@@ -15,11 +15,6 @@ export function loadWorkersConfig(env: Env, request: Request): Config {
   const baseUrl = `${url.protocol}//${url.host}`;
 
   return {
-    server: {
-      port: 443,
-      host: url.host,
-      nodeEnv: env.ENVIRONMENT === 'production' ? 'production' : 'development',
-    },
     harvest: {
       clientId: env.HARVEST_CLIENT_ID,
       clientSecret: env.HARVEST_CLIENT_SECRET,
@@ -31,13 +26,6 @@ export function loadWorkersConfig(env: Env, request: Request): Config {
       allowedOrigins: env.ALLOWED_ORIGINS?.split(',') || ['https://claude.ai', 'https://app.claude.ai'],
       sessionSecret: env.SESSION_SECRET,
       sessionTtlHours: parseInt(env.SESSION_TTL_HOURS || '24', 10),
-    },
-    rateLimit: {
-      windowMs: 900000, // 15 minutes
-      maxRequests: 1000,
-    },
-    storage: {
-      type: 'memory', // Not used in Workers - we use KV
     },
     logging: {
       level: (env.LOG_LEVEL as Config['logging']['level']) || 'info',

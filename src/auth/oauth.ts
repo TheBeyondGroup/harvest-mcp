@@ -103,9 +103,8 @@ export class HarvestOAuth {
    * Generate a secure state parameter that encodes the session ID
    */
   static generateState(sessionId: string): string {
-    // In production, you might want to encrypt this
     const random = crypto.randomUUID();
-    return Buffer.from(JSON.stringify({ sessionId, random })).toString('base64url');
+    return toBase64Url(JSON.stringify({ sessionId, random }));
   }
 
   /**
@@ -113,7 +112,7 @@ export class HarvestOAuth {
    */
   static parseState(state: string): { sessionId: string } | null {
     try {
-      const decoded = JSON.parse(Buffer.from(state, 'base64url').toString());
+      const decoded = JSON.parse(fromBase64Url(state));
       if (typeof decoded.sessionId === 'string') {
         return { sessionId: decoded.sessionId };
       }
@@ -122,4 +121,17 @@ export class HarvestOAuth {
       return null;
     }
   }
+}
+
+function toBase64Url(str: string): string {
+  const bytes = new TextEncoder().encode(str);
+  const base64 = btoa(String.fromCharCode(...bytes));
+  return base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
+function fromBase64Url(b64url: string): string {
+  const padded = b64url.replace(/-/g, '+').replace(/_/g, '/');
+  const padding = '='.repeat((4 - (padded.length % 4)) % 4);
+  const bytes = Uint8Array.from(atob(padded + padding), (c) => c.charCodeAt(0));
+  return new TextDecoder().decode(bytes);
 }

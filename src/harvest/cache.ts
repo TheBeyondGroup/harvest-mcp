@@ -6,7 +6,19 @@
  */
 
 import { LRUCache } from 'lru-cache';
-import { createHash } from 'node:crypto';
+
+/**
+ * djb2 hash — fast non-cryptographic hash suitable for cache keys.
+ * Replaces a node:crypto SHA-256 truncation; only collision-resistance vs.
+ * a 500-entry LRU is needed here, not cryptographic strength.
+ */
+function djb2(str: string): string {
+  let hash = 5381;
+  for (let i = 0; i < str.length; i++) {
+    hash = ((hash << 5) + hash + str.charCodeAt(i)) | 0;
+  }
+  return (hash >>> 0).toString(16);
+}
 
 export interface CacheConfig {
   maxSize: number;      // Maximum number of entries (default: 500)
@@ -54,11 +66,8 @@ export class HarvestCache {
       ? JSON.stringify(Object.entries(params).sort(([a], [b]) => a.localeCompare(b)))
       : '';
     
-    const hash = createHash('sha256')
-      .update(path + normalizedParams)
-      .digest('hex')
-      .substring(0, 12);
-    
+    const hash = djb2(path + normalizedParams);
+
     return `${path}:${hash}`;
   }
 
