@@ -1,0 +1,22 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: npm ci
+      - run: npm test
+        # Typecheck (npm run typecheck) intentionally not run yet: src/rates/rates-service.ts
+        # uses node:fs and process.env which won't work in Workers. Once that's migrated to
+        # the RATES_CONFIG KV namespace, add `- run: npm run typecheck` here.
