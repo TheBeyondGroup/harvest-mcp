@@ -1,9 +1,14 @@
 {
   "name": "harvest-mcp",
   "version": "0.1.0",
-  "description": "MCP Server for Harvest time tracking API",
+  "description": "The Beyond Group's hosted Harvest MCP server — connects TBG teammates to Harvest time tracking via claude.ai Connectors. Forked from southleft/harvest-mcp.",
   "type": "module",
   "main": "dist/index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/TheBeyondGroup/harvest-mcp.git"
+  },
+  "homepage": "https://github.com/TheBeyondGroup/harvest-mcp",
   "scripts": {
     "build": "tsc",
     "build:workers": "npx wrangler deploy --dry-run --outdir dist/workers",
@@ -25,7 +30,7 @@
     "time-tracking",
     "ai"
   ],
-  "author": "",
+  "author": "The Beyond Group",
   "license": "MIT",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.0",
