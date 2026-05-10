@@ -16,6 +16,7 @@ import { WebStandardStreamableHTTPServerTransport } from '@modelcontextprotocol/
 import type { Env } from './types.js';
 import { KVSessionStore } from './kv-session-store.js';
 import { loadWorkersConfig } from './config.js';
+import { verifyPKCE } from './pkce.js';
 import { HarvestOAuth } from '../auth/oauth.js';
 import { registerTools } from '../tools/index.js';
 import type { Session } from '../session/types.js';
@@ -705,24 +706,6 @@ app.get('/og-image.png', (c) => {
 function getBaseUrl(request: Request): string {
   const url = new URL(request.url);
   return `${url.protocol}//${url.host}`;
-}
-
-/**
- * Verify a PKCE code_verifier against the stored code_challenge.
- * Only S256 is supported (matches what we advertise via oauth-authorization-server metadata).
- */
-async function verifyPKCE(
-  codeVerifier: string,
-  codeChallenge: string,
-  method: string | undefined
-): Promise<boolean> {
-  if (method !== 'S256') {
-    return false;
-  }
-  const hash = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(codeVerifier));
-  const base64 = btoa(String.fromCharCode(...new Uint8Array(hash)));
-  const base64url = base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-  return base64url === codeChallenge;
 }
 
 /**
