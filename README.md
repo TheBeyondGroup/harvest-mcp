@@ -83,6 +83,8 @@ Works the same in claude.ai web, Claude Desktop, and Claude Code — the Connect
 | Tool | Description |
 |------|-------------|
 | `harvest_list_projects` | List all projects with filters |
+| `harvest_create_project` | Create a new project for a client |
+| `harvest_assign_user_to_project` | Assign a user to a project (with optional PM flag, rate override, budget) |
 | `harvest_list_tasks` | List all tasks |
 
 ### Invoicing & expenses

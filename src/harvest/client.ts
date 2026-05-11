@@ -20,6 +20,9 @@ import type {
   ContactFilterParams,
   Project,
   ProjectsResponse,
+  CreateProjectParams,
+  UserAssignment,
+  CreateUserAssignmentParams,
   TimeEntry,
   TimeEntriesResponse,
   CreateTimeEntryParams,
@@ -440,6 +443,14 @@ export class HarvestClient {
 
   async getProject(id: number): Promise<WithMeta<Project>> {
     return this.get<Project>(`/projects/${id}`);
+  }
+
+  async createProject(data: CreateProjectParams): Promise<WithMeta<Project>> {
+    return this.post<Project>('/projects', data);
+  }
+
+  async createUserAssignment(projectId: number, data: CreateUserAssignmentParams): Promise<WithMeta<UserAssignment>> {
+    return this.post<UserAssignment>(`/projects/${projectId}/user_assignments`, data);
   }
 
   // ============================================

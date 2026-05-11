@@ -170,6 +170,54 @@ export interface ProjectsResponse extends PaginatedResponse<Project> {
   projects: Project[];
 }
 
+export interface CreateProjectParams {
+  client_id: number;
+  name: string;
+  is_billable: boolean;
+  bill_by: 'Project' | 'Tasks' | 'People' | 'none';
+  budget_by: 'project' | 'project_cost' | 'task' | 'task_fees' | 'person' | 'none';
+  code?: string;
+  is_active?: boolean;
+  is_fixed_fee?: boolean;
+  hourly_rate?: number;
+  budget?: number;
+  budget_is_monthly?: boolean;
+  notify_when_over_budget?: boolean;
+  over_budget_notification_percentage?: number;
+  show_budget_to_all?: boolean;
+  cost_budget?: number;
+  cost_budget_include_expenses?: boolean;
+  fee?: number;
+  notes?: string;
+  starts_on?: string;
+  ends_on?: string;
+  [key: string]: unknown;
+}
+
+// User Assignment (links a user to a project)
+export interface UserAssignment {
+  id: number;
+  is_project_manager: boolean;
+  is_active: boolean;
+  use_default_rates: boolean;
+  budget: number | null;
+  created_at: string;
+  updated_at: string;
+  hourly_rate: number | null;
+  project: { id: number; name: string; code: string | null };
+  user: { id: number; name: string };
+}
+
+export interface CreateUserAssignmentParams {
+  user_id: number;
+  is_active?: boolean;
+  is_project_manager?: boolean;
+  use_default_rates?: boolean;
+  hourly_rate?: number;
+  budget?: number;
+  [key: string]: unknown;
+}
+
 // Time Entry
 export interface TimeEntry {
   id: number;

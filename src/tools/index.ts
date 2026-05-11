@@ -661,6 +661,109 @@ export function registerTools(
     }
   );
 
+  server.tool(
+    'harvest_create_project',
+    'Create a new project for a client. Required: client_id, name, is_billable, bill_by, budget_by. Use harvest_get_schema with enum=bill_by or budget_by to see valid values.',
+    {
+      client_id: z.number().describe('Client ID this project belongs to'),
+      name: z.string().describe('Project name'),
+      is_billable: z.boolean().describe('Whether time on this project is billable'),
+      bill_by: z.enum(['Project', 'Tasks', 'People', 'none']).describe('Billing method'),
+      budget_by: z.enum(['project', 'project_cost', 'task', 'task_fees', 'person', 'none']).describe('Budget type'),
+      code: z.string().optional().describe('Project code'),
+      is_active: z.boolean().optional().describe('Whether the project is active (default: true)'),
+      is_fixed_fee: z.boolean().optional().describe('Whether the project is a fixed-fee project'),
+      hourly_rate: z.number().optional().describe('Default hourly rate for the project'),
+      budget: z.number().optional().describe('Project budget (hours or amount, depending on budget_by)'),
+      budget_is_monthly: z.boolean().optional().describe('Whether the budget resets each month'),
+      notify_when_over_budget: z.boolean().optional().describe('Notify project manager when over budget'),
+      over_budget_notification_percentage: z.number().optional().describe('Percentage of budget at which to notify (e.g. 80)'),
+      show_budget_to_all: z.boolean().optional().describe('Show budget to all team members on this project'),
+      cost_budget: z.number().optional().describe('Cost budget for the project'),
+      cost_budget_include_expenses: z.boolean().optional().describe('Whether expenses count toward cost budget'),
+      fee: z.number().optional().describe('Fixed fee for the project (for fixed-fee projects)'),
+      notes: z.string().optional().describe('Project notes'),
+      starts_on: z.string().optional().describe('Project start date (YYYY-MM-DD)'),
+      ends_on: z.string().optional().describe('Project end date (YYYY-MM-DD)'),
+    },
+    async (params) => {
+      const client = await getHarvestClient(session, sessionStore, config);
+
+      if (!client) {
+        const authUrl = getAuthUrl(session, config);
+        return {
+          content: [
+            {
+              type: 'text',
+              text: `Authentication required. Please authorize the application:\n\n${authUrl}`,
+            },
+          ],
+          isError: true,
+        };
+      }
+
+      try {
+        const project = await client.createProject(params);
+        return {
+          content: [{ type: 'text', text: JSON.stringify(project, null, 2) }],
+        };
+      } catch (error) {
+        if (error instanceof HarvestApiError) {
+          return {
+            content: [{ type: 'text', text: `Harvest API error: ${error.message}` }],
+            isError: true,
+          };
+        }
+        throw error;
+      }
+    }
+  );
+
+  server.tool(
+    'harvest_assign_user_to_project',
+    'Assign a user to a project (creates a user assignment). The assignment grants the user access to log time on the project. Optionally set them as project manager, override the default rate, or set a per-user budget.',
+    {
+      project_id: z.number().describe('Project ID to assign the user to'),
+      user_id: z.number().describe('User ID to assign'),
+      is_active: z.boolean().optional().describe('Whether the assignment is active (default: true)'),
+      is_project_manager: z.boolean().optional().describe('Whether the user is a project manager on this project'),
+      use_default_rates: z.boolean().optional().describe('Use the user\'s default hourly rate (default: true). Set false to use the hourly_rate override below.'),
+      hourly_rate: z.number().optional().describe('Hourly rate override for this user on this project (only used if use_default_rates is false)'),
+      budget: z.number().optional().describe('Per-user budget on this project (hours or amount, depending on the project\'s budget_by setting)'),
+    },
+    async ({ project_id, ...params }) => {
+      const client = await getHarvestClient(session, sessionStore, config);
+
+      if (!client) {
+        const authUrl = getAuthUrl(session, config);
+        return {
+          content: [
+            {
+              type: 'text',
+              text: `Authentication required. Please authorize the application:\n\n${authUrl}`,
+            },
+          ],
+          isError: true,
+        };
+      }
+
+      try {
+        const assignment = await client.createUserAssignment(project_id, params);
+        return {
+          content: [{ type: 'text', text: JSON.stringify(assignment, null, 2) }],
+        };
+      } catch (error) {
+        if (error instanceof HarvestApiError) {
+          return {
+            content: [{ type: 'text', text: `Harvest API error: ${error.message}` }],
+            isError: true,
+          };
+        }
+        throw error;
+      }
+    }
+  );
+
   // ============================================
   // INVOICE TOOLS
   // ============================================
