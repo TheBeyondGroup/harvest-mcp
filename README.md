@@ -2,7 +2,7 @@
 
 The Beyond Group's hosted Harvest MCP server. Lets TBG teammates query and manage their Harvest time tracking from Claude via the same claude.ai Connectors flow as Linear, Notion, Slack, and Figma.
 
-**Status:** v1 deploy in progress ([TBG-230](https://linear.app/the-beyond-group/issue/TBG-230)). Endpoint URL TBA.
+**Status:** Live at `https://harvest-mcp.thebeyondgroup.workers.dev/mcp`. ([TBG-230](https://linear.app/the-beyond-group/issue/TBG-230) shipped 2026-05-11. A move to `harvest-mcp.thebeyondgroup.la` is queued as optional follow-up [TBG-234](https://linear.app/the-beyond-group/issue/TBG-234), pending DNS migration of the `.la` zone to Cloudflare.)
 
 Forked from [southleft/harvest-mcp](https://github.com/southleft/harvest-mcp) so TBG owns the data path: TBG-registered Harvest OAuth app, TBG Cloudflare account, TBG-controlled token storage. MIT, both copyrights retained in [LICENSE](LICENSE).
 
@@ -10,10 +10,10 @@ Forked from [southleft/harvest-mcp](https://github.com/southleft/harvest-mcp) so
 
 ## For TBG teammates (using it)
 
-Once the v1 deploy lands, add it as a claude.ai Connector:
+Add it as a claude.ai Connector:
 
 1. claude.ai → **Settings** → **Connectors** → **Add custom connector**
-2. URL: `https://harvest-mcp.thebeyondgroup.la/mcp`
+2. URL: `https://harvest-mcp.thebeyondgroup.workers.dev/mcp`
 3. Authorize with your TBG Harvest login.
 
 Works the same in claude.ai web, Claude Desktop, and Claude Code — the Connector is account-level.
@@ -152,7 +152,7 @@ npm run deploy           # production
 npm run deploy:staging   # staging env (defined in wrangler.toml)
 ```
 
-Custom domain is wired in `wrangler.toml`'s `[[routes]]` block once the DNS for `harvest-mcp.thebeyondgroup.la` is provisioned.
+The service runs at the auto-assigned Workers URL (`harvest-mcp.thebeyondgroup.workers.dev`) today. The `[[routes]]` block in `wrangler.toml` reserves `harvest-mcp.thebeyondgroup.la` for migration once that DNS is provisioned — tracked as [TBG-234](https://linear.app/the-beyond-group/issue/TBG-234) (optional follow-up).
 
 ### Environment variables
 
