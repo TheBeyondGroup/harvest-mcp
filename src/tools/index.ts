@@ -359,6 +359,52 @@ export function registerTools(
   );
 
   server.tool(
+    'harvest_update_time_entry',
+    'Update an existing time entry. Only the provided fields are changed; others are left intact.',
+    {
+      id: z.number().describe('Time entry ID to update'),
+      project_id: z.number().optional().describe('New project ID'),
+      task_id: z.number().optional().describe('New task ID'),
+      spent_date: z.string().optional().describe('New date (YYYY-MM-DD)'),
+      hours: z.number().optional().describe('New hours'),
+      notes: z.string().optional().describe('New notes/description'),
+      started_time: z.string().optional().describe('New start time (HH:MM, 12h format like "9:00am")'),
+      ended_time: z.string().optional().describe('New end time (HH:MM, 12h format like "5:00pm")'),
+    },
+    async ({ id, ...patch }) => {
+      const client = await getHarvestClient(session, sessionStore, config);
+
+      if (!client) {
+        const authUrl = getAuthUrl(session, config);
+        return {
+          content: [
+            {
+              type: 'text',
+              text: `Authentication required. Please authorize the application:\n\n${authUrl}`,
+            },
+          ],
+          isError: true,
+        };
+      }
+
+      try {
+        const timeEntry = await client.updateTimeEntry(id, patch);
+        return {
+          content: [{ type: 'text', text: JSON.stringify(timeEntry, null, 2) }],
+        };
+      } catch (error) {
+        if (error instanceof HarvestApiError) {
+          return {
+            content: [{ type: 'text', text: `Harvest API error: ${error.message}` }],
+            isError: true,
+          };
+        }
+        throw error;
+      }
+    }
+  );
+
+  server.tool(
     'harvest_stop_timer',
     'Stop a running timer on a time entry',
     {

@@ -54,7 +54,7 @@ Works the same in claude.ai web, Claude Desktop, and Claude Code — the Connect
 
 ---
 
-## Available tools (21)
+## Available tools (22)
 
 ### Time tracking
 | Tool | Description |
@@ -62,6 +62,7 @@ Works the same in claude.ai web, Claude Desktop, and Claude Code — the Connect
 | `harvest_list_time_entries` | List and filter time entries by user, client, project, date range |
 | `harvest_get_time_entry` | Get a specific time entry by ID |
 | `harvest_create_time_entry` | Create new time entries with optional timer |
+| `harvest_update_time_entry` | Patch fields on an existing time entry |
 | `harvest_stop_timer` | Stop a running timer |
 | `harvest_delete_time_entry` | Delete a time entry |
 
