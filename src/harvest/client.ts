@@ -46,7 +46,7 @@ import { HarvestCache, getCache, type CacheConfig } from './cache.js';
  * Configuration options for HarvestClient
  */
 export interface HarvestClientOptions {
-  /** User-Agent header (default: 'HarvestMCP') */
+  /** User-Agent header (default: 'HarvestMCP (github.com/TheBeyondGroup/harvest-mcp)') */
   userAgent?: string;
   /** Enable response caching (default: true) */
   enableCache?: boolean;
@@ -93,7 +93,7 @@ export class HarvestClient {
   ) {
     this.accessToken = accessToken;
     this.accountId = accountId;
-    this.userAgent = options.userAgent ?? 'HarvestMCP';
+    this.userAgent = options.userAgent ?? 'HarvestMCP (github.com/TheBeyondGroup/harvest-mcp)';
     
     // Initialize cache (can be disabled)
     const enableCache = options.enableCache ?? true;

@@ -56,7 +56,7 @@ async function getHarvestClient(
   return new HarvestClient(
     session.harvestAccessToken,
     session.harvestAccountId,
-    { userAgent: 'HarvestMCP/0.1.0' }
+    { userAgent: 'HarvestMCP (github.com/TheBeyondGroup/harvest-mcp)' }
   );
 }
 
